@@ -1,0 +1,47 @@
+{
+  "name": "HonestMarkets",
+  "nickName": {
+    "cn": "誠實小販+",
+    "en": "HonestMarkets+"
+  },
+  "version": "0.5.5",
+  "styleFileList": [],
+  "scriptFileList_earlyload": [],
+  "scriptFileList_inject_early": [],
+  "scriptFileList_preload": [],
+  "scriptFileList": [
+    "HonestMarkets.js"
+  ],
+  "tweeFileList": [
+    "HonestMarkets_Widgets.twee"
+  ],
+  "imgFileList": [],
+  "additionFile": [
+    "README.md"
+  ],
+  "addonPlugin": [
+    {
+      "modName": "TweeReplacer",
+      "addonName": "TweeReplacerAddon",
+      "modVersion": "1.0.0",
+      "params": [
+        {
+          "passage": "Connudatus Markets",
+          "findString": "if dangerEvent(1, 14000)",
+          "replace": "if 1"
+        },
+        {
+          "passage": "Connudatus Markets",
+          "findString": "<<connudatusMarketsLewdEvents>>",
+          "replace": "<<HonestMarkets_Intro>>"
+        }
+      ]
+    }
+  ],
+  "dependenceInfo": [
+    {
+      "modName": "TweeReplacer",
+      "version": "^1.0.0"
+    }
+  ]
+}

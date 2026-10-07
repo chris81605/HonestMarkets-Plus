@@ -1,0 +1,165 @@
+:: Widgets HonestMarkets[widget]
+<<widget "HonestMarkets_Intro">>
+    <<honestMarketsBegin>>
+    <<if setup.HonestMarkets.isBannedToday()>>
+        <span class="grey"><<print setup.HonestMarkets.marketBanText()>></span><br><br>
+    <<elseif setup.HonestMarkets.isMarketOpen()>>
+        你走在各色攤位之間，琳瑯滿目的商品令人眼花撩亂。周圍人頭攢動，叫賣聲不絕於耳。<br>
+        要是沒有目標，你恐怕連逛三天三夜也難買到心儀的商品。<br><br>
+        你要重點關注哪方面的商品？
+        <br><br>
+        <<link [[購買商品|HonestMarkets Products]]>><</link>><br>
+        <<link [[購買種子和肥料|HonestMarkets Seeds]]>><</link>><br>
+        <<link [[只是閒逛|HonestMarkets Walk]]>><<run setup.HonestMarkets.endVisit()>><</link>><br><br>
+    <<else>>
+        <span class="grey"><<print setup.HonestMarkets.marketClosedText()>></span><br><br>
+    <</if>>
+        <<getouticon>><<link [[離開|Connudatus Street]]>><<run setup.HonestMarkets.endVisit()>><<endevent>><</link>>
+<</widget>>
+
+:: HonestMarkets Products[]
+<<if setup.HonestMarkets.isBannedToday()>>
+    <span class="grey"><<print setup.HonestMarkets.marketBanText()>></span>
+<<elseif setup.HonestMarkets.isMarketOpen()>>
+    你停在一片連排的商品攤位前。不同攤位出售各式各樣的商品，價格與供貨量隨行情而異，大批購買通常能獲得更好的價格。<br><br>
+    你想看看哪一類商品？<br><br>
+    <<honestMarketsCategories>>
+    <br>
+<<if setup.HonestMarkets.canExploreMore()>>
+	<<link "探索更多商品 (00:30)" "HonestMarkets Products">><<pass 30>><<run setup.HonestMarkets.beginVisit()>><</link>><br>
+	<span class="grey">花時間繼續探索市集，會重新尋找一批商品與行情。</span>
+<<else>>
+	<span class="grey">時間已經不早了，攤販們陸續開始收拾，已經沒有時間再仔細探索市場了。</span>
+<</if>>
+<br><br>
+<<if $loft_river is 1 and $money gte 15000 and (setup.HonestMarkets.marketMinutes() is null or setup.HonestMarkets.marketMinutes() + 15 lt 1260)>>
+	<<foodstufficon "potato">><<link [[為孤兒院購買蔬菜 (£150) (00:15)|HonestMarkets Products]]>><<money -15000>><<hope 1>><<famegood 1>><<pass 15>><<endevent>><</link>><<ghope>><br>
+<</if>>
+<<else>>
+    <span class="grey"><<print setup.HonestMarkets.marketClosedText()>></span>
+<</if>>
+<br><br>
+<<link [[返回市場入口|Connudatus Markets]]>><</link>><br>
+<<getouticon>><<link [[離開|Connudatus Street]]>><<run setup.HonestMarkets.endVisit()>><<endevent>><</link>>
+
+:: HonestMarkets Category[]
+<<if setup.HonestMarkets.isBannedToday()>>
+    <span class="grey"><<print setup.HonestMarkets.marketBanText()>></span>
+<<elseif setup.HonestMarkets.isMarketOpen()>>
+    你來到出售<<print setup.HonestMarkets.currentCategoryName()>>的攤位前。今天擺出來的貨品只有其中一部分。<br><br>
+    <<honestMarketsOffers>>
+    <<honestMarketsTheftAction>>
+<<else>>
+    <span class="grey"><<print setup.HonestMarkets.marketClosedText()>></span>
+<</if>>
+<br>
+<<link [[看看其他類別|HonestMarkets Products]]>><</link>><br>
+<<getouticon>><<link [[離開|Connudatus Street]]>><<run setup.HonestMarkets.endVisit()>><<endevent>><</link>>
+
+:: HonestMarkets Seeds[]
+<<if setup.HonestMarkets.isBannedToday()>>
+    <span class="grey"><<print setup.HonestMarkets.marketBanText()>></span>
+<<elseif setup.HonestMarkets.isMarketOpen()>>
+    一個掛著「園藝用品」牌子的攤位吸引了你的注意。除了園藝工具，這裡也出售當季種子和肥料。<br>
+    在攤位後，一個滿臉雀斑的<<girl>>笑著向你招了招手。
+    <br><br>
+<<if $fertiliser is undefined or !$fertiliser.current>>
+	你現在還沒有肥料。
+<<else>>
+	你現在有$fertiliser.current 袋肥料。
+<</if>>
+<br>
+<<if $money gte 100000>>
+	<<gardenicon "fertiliser">><<link [[購買肥料 (£1000) (00:05)|HonestMarkets Seeds]]>><<set $fertiliser.current += 1>><<money -100000>><<pass 5>><<endevent>><</link>>
+<<else>>
+	<<gardenicon "fertiliser">>肥料 £1000 <span class="grey">（你的錢不夠）</span>
+<</if>>
+<br><br>
+本次進貨的未知種子：<br><br>
+<<honestMarketsSeeds>>
+<br>
+<span class="grey">種子每五天進貨一次。買走後本輪不會補貨，要等下一次進貨才會出現新的隨機貨品。</span>
+<br><br>
+<<link [[返回市場入口|Connudatus Markets]]>><</link>><br>
+<<getouticon>><<link [[離開|Connudatus Street]]>><<run setup.HonestMarkets.endVisit()>><<endevent>><</link>>
+<<else>>
+    <span class="grey"><<print setup.HonestMarkets.marketClosedText()>></span>
+<</if>>
+
+:: HonestMarkets Walk[]
+<<connudatusMarketsStatusEvents>>
+
+
+:: HonestMarkets Steal[]
+<<set _theft to $honestMarketsTheft>>
+<<if setup.HonestMarkets.isBannedToday()>>
+	<span class="grey"><<print setup.HonestMarkets.marketBanText()>></span>
+	<<unset $honestMarketsTheft>>
+<<elseif !setup.HonestMarkets.isMarketOpen()>>
+	<span class="grey"><<print setup.HonestMarkets.marketClosedText()>></span>
+	<<unset $honestMarketsTheft>>
+<<elseif !_theft>>
+	<span class="grey">你沒有找到適合下手的東西。</span>
+<<else>>
+	<<set $skulduggerydifficulty to _theft.difficulty>>
+	你觀察了一會兒，找到了一個可以對<<print _theft.name>>下手的機會。
+	<<if $debug>>
+		<mouse class="tooltip-small linkBlue">(?)<span class="black"><b>HonestMarkets Theft Debug</b><br>詭術可偷價格分位：<<print (_theft.pricePercentile * 100).toFixed(1)>>%<br>動態單價上限：<<print setup.HonestMarkets.moneyText(_theft.maxUnitValue)>><br>商品單價：<<print setup.HonestMarkets.moneyText(_theft.unitValue)>><br>目前庫存：<<print _theft.stockQty>><br>理論最大偷摸數量：<<print _theft.theoreticalMaxAmount>><br>庫存限制後上限：<<print _theft.maxAmount>><br>本次偷摸數量：<<print _theft.amount>><br>時段基準修正：<<print _theft.timeModifierBase>><br>本次時段修正：<<print _theft.timeModifier>><br>最終難度：<<print _theft.difficulty>><br>能力負荷：<<print (_theft.caughtLoad * 100).toFixed(1)>>%<br>基礎被抓率：<<print (_theft.baseCaughtChance * 100).toFixed(1)>>%<br>現場波動：<<print _theft.caughtVariance.toFixed(3)>>×<br>失敗後被抓機率：<<print (setup.HonestMarkets.theftCaughtChance(_theft) * 100).toFixed(1)>>%</span></mouse>
+	<</if>><br>
+	<<skulduggerydifficulty>><br><br>
+	<!--
+		DoL 0.5.12.x 的犯罪系統以 crimeUp(value, type) 記錄分類犯罪。
+		petty 是官方用於一般小偷小摸的分類；value 使用本次鎖定商品的實際總價（£）。
+		犯罪在玩家正式「下手」時成立，因此不論之後詭術檢定成功或失敗都只記錄這一次。
+		不要把 crimeUp 移到 Result：官方會在 crimeUp 內處理潛行裝備、詭術減免、
+		Current/History/Daily/Count 等新版統計，重複呼叫會造成重複犯罪紀錄。
+	-->
+	<<crimeicon "mark">><<link "下手 (00:05)" "HonestMarkets Steal Result">><<crimeUp `_theft.crimeValue` "petty">><</link>><<crime "petty">><br>
+	<<link [[算了|HonestMarkets Category]]>><<unset $honestMarketsTheft>><</link>><br>
+<</if>>
+<br>
+<<link [[返回攤位|HonestMarkets Category]]>><<unset $honestMarketsTheft>><</link>><br>
+<<link [[看看其他類別|HonestMarkets Products]]>><<unset $honestMarketsTheft>><</link>><br>
+<<getouticon>><<link [[離開|Connudatus Street]]>><<unset $honestMarketsTheft>><<run setup.HonestMarkets.endVisit()>><<endevent>><</link>>
+
+:: HonestMarkets Steal Result[]
+<<set _theft to $honestMarketsTheft>>
+<<if setup.HonestMarkets.isBannedToday()>>
+	<span class="grey"><<print setup.HonestMarkets.marketBanText()>></span>
+	<<unset $honestMarketsTheft>>
+<<elseif !setup.HonestMarkets.isMarketOpen()>>
+	<span class="grey">攤販們已經開始收拾商品，你錯過了剛才找到的機會。</span>
+	<<unset $honestMarketsTheft>>
+<<elseif !_theft>>
+	<span class="grey">剛才的機會已經消失了。</span>
+<<else>>
+	<<set $skulduggerydifficulty to _theft.difficulty>>
+	<<pass 5>>
+	<<skulduggerycheck "silent">>
+	<<if $skulduggerysuccess is 1>>
+		<<run setup.HonestMarkets.completeTheft()>>
+		<span class="green">你成功摸走了<<print _theft.amount>>個<<print _theft.name>>，沒有引起注意。</span>
+	<<else>>
+		<<if setup.HonestMarkets.rollTheftCaught(_theft)>>
+			<<run setup.HonestMarkets.banMarketToday()>>
+			<span class="red">攤主當場抓住了你的動作，騷動很快引來附近其他攤販的注意。你被趕出了市場，今天別想再回來了。</span>
+		<<else>>
+			<span class="red">你沒能得手，但及時收回了手，沒有被當場逮住。</span>
+		<</if>>
+	<</if>>
+	<br><br>
+	<<skulduggeryuse $skulduggerydifficulty "target">>
+	<<unset $honestMarketsTheft>>
+<</if>>
+<br>
+<<if setup.HonestMarkets.isBannedToday()>>
+	<<getouticon>><<link [[離開|Connudatus Street]]>><<run setup.HonestMarkets.endVisit()>><<endevent>><</link>>
+<<elseif setup.HonestMarkets.isMarketOpen()>>
+	<<link [[返回攤位|HonestMarkets Category]]>><</link>><br>
+	<<link [[看看其他類別|HonestMarkets Products]]>><</link>><br>
+	<<getouticon>><<link [[離開|Connudatus Street]]>><<run setup.HonestMarkets.endVisit()>><<endevent>><</link>>
+<<else>>
+	<span class="grey"><<print setup.HonestMarkets.marketClosedText()>></span><br><br>
+	<<getouticon>><<link [[離開|Connudatus Street]]>><<run setup.HonestMarkets.endVisit()>><<endevent>><</link>>
+<</if>>
+
